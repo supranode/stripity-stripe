@@ -970,8 +970,11 @@ defmodule Stripe.Checkout.Session do
   )
 
   (
-    @typedoc "The parameters used to automatically create a Transfer when the payment succeeds.\nFor more information, see the PaymentIntents [use case for connected accounts](https://stripe.com/docs/payments/connected-accounts)."
-    @type transfer_data :: %{optional(:amount) => integer, optional(:destination) => binary}
+    @typedoc "If specified, the funds from the subscription's invoices will be transferred to the destination and the ID of the resulting transfers will be found on the resulting charges."
+    @type transfer_data :: %{
+            optional(:amount_percent) => number,
+            optional(:destination) => binary
+          }
   )
 
   (
@@ -1050,6 +1053,55 @@ defmodule Stripe.Checkout.Session do
         path =
           Stripe.OpenApi.Path.replace_path_params(
             "/v1/checkout/sessions/{session}",
+            [
+              %OpenApiGen.Blueprint.Parameter{
+                in: "path",
+                name: "session",
+                required: true,
+                schema: %OpenApiGen.Blueprint.Parameter.Schema{
+                  name: "session",
+                  title: nil,
+                  type: "string",
+                  items: [],
+                  properties: [],
+                  any_of: []
+                }
+              }
+            ],
+            [session]
+          )
+
+        Stripe.Request.new_request(opts)
+        |> Stripe.Request.put_endpoint(path)
+        |> Stripe.Request.put_params(params)
+        |> Stripe.Request.put_method(:get)
+        |> Stripe.Request.make_request()
+      end
+    )
+  )
+
+  (
+    nil
+
+    @doc "<p>When retrieving a Checkout Session, there is an includable <strong>line_items</strong> property containing the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.</p>\n\n#### Details\n\n * Method: `get`\n * Path: `/v1/checkout/sessions/{session}/line_items`\n"
+    (
+      @spec list_line_items(
+              session :: binary(),
+              params :: %{
+                optional(:ending_before) => binary,
+                optional(:expand) => list(binary),
+                optional(:limit) => integer,
+                optional(:starting_after) => binary
+              },
+              opts :: Keyword.t()
+            ) ::
+              {:ok, Stripe.List.t(Stripe.Item.t())}
+              | {:error, Stripe.ApiErrors.t()}
+              | {:error, term()}
+      def list_line_items(session, params \\ %{}, opts \\ []) do
+        path =
+          Stripe.OpenApi.Path.replace_path_params(
+            "/v1/checkout/sessions/{session}/line_items",
             [
               %OpenApiGen.Blueprint.Parameter{
                 in: "path",
@@ -1210,55 +1262,6 @@ defmodule Stripe.Checkout.Session do
         |> Stripe.Request.put_endpoint(path)
         |> Stripe.Request.put_params(params)
         |> Stripe.Request.put_method(:post)
-        |> Stripe.Request.make_request()
-      end
-    )
-  )
-
-  (
-    nil
-
-    @doc "<p>When retrieving a Checkout Session, there is an includable <strong>line_items</strong> property containing the first handful of those items. There is also a URL where you can retrieve the full (paginated) list of line items.</p>\n\n#### Details\n\n * Method: `get`\n * Path: `/v1/checkout/sessions/{session}/line_items`\n"
-    (
-      @spec list_line_items(
-              session :: binary(),
-              params :: %{
-                optional(:ending_before) => binary,
-                optional(:expand) => list(binary),
-                optional(:limit) => integer,
-                optional(:starting_after) => binary
-              },
-              opts :: Keyword.t()
-            ) ::
-              {:ok, Stripe.List.t(Stripe.Item.t())}
-              | {:error, Stripe.ApiErrors.t()}
-              | {:error, term()}
-      def list_line_items(session, params \\ %{}, opts \\ []) do
-        path =
-          Stripe.OpenApi.Path.replace_path_params(
-            "/v1/checkout/sessions/{session}/line_items",
-            [
-              %OpenApiGen.Blueprint.Parameter{
-                in: "path",
-                name: "session",
-                required: true,
-                schema: %OpenApiGen.Blueprint.Parameter.Schema{
-                  name: "session",
-                  title: nil,
-                  type: "string",
-                  items: [],
-                  properties: [],
-                  any_of: []
-                }
-              }
-            ],
-            [session]
-          )
-
-        Stripe.Request.new_request(opts)
-        |> Stripe.Request.put_endpoint(path)
-        |> Stripe.Request.put_params(params)
-        |> Stripe.Request.put_method(:get)
         |> Stripe.Request.make_request()
       end
     )
