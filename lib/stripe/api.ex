@@ -124,7 +124,7 @@ defmodule Stripe.API do
       "Accept" => "application/json; charset=utf8",
       "Accept-Encoding" => "gzip",
       "Connection" => "keep-alive",
-      "pid" => inspect(self)
+      "pid" => inspect(self())
     })
   end
 
