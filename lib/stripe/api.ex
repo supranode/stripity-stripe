@@ -118,13 +118,25 @@ defmodule Stripe.API do
     Base.hex_encode32(binary, case: :lower, padding: false)
   end
 
-  @spec add_common_headers(headers) :: headers
-  defp add_common_headers(existing_headers) do
-    Map.merge(existing_headers, %{
-      "Accept" => "application/json; charset=utf8",
-      "Accept-Encoding" => "gzip",
-      "Connection" => "keep-alive"
-    })
+  if Mix.env() == :test do
+    @spec add_common_headers(headers) :: headers
+    defp add_common_headers(existing_headers) do
+      Map.merge(existing_headers, %{
+        "Accept" => "application/json; charset=utf8",
+        "Accept-Encoding" => "gzip",
+        "Connection" => "keep-alive",
+        "pid" => inspect(self)
+      })
+    end
+  else
+    @spec add_common_headers(headers) :: headers
+    defp add_common_headers(existing_headers) do
+      Map.merge(existing_headers, %{
+        "Accept" => "application/json; charset=utf8",
+        "Accept-Encoding" => "gzip",
+        "Connection" => "keep-alive"
+      })
+    end
   end
 
   @spec add_default_headers(headers) :: headers
